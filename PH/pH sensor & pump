@@ -1,0 +1,62 @@
+const int red_pH_sensorValue = 29;    // pH 4
+const int yellow_pH_sensorValue = 0;  //pH 7
+const int blue_pH_sensorValue = -36;  //pH 10
+
+// calibration
+const double acid_slope = -0.1034;
+const double alkali_slope = -0.0833;
+
+// Pumps
+const int pumpA = 9;   // acid pump
+const int pumpB = 10;  // alkali pump
+
+//pH sensor
+float pH = 0;
+float user_input;
+float difference = abs(pH - user_input);
+
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  float pH1_sensorValue = analogRead(A0);
+  float rV_sensorValue = analogRead(A1);
+
+  float pH2_sensorValue = pH1_sensorValue - rV_sensorValue;
+
+
+
+  if (pH2_sensorValue < 0) {
+    pH = pH2_sensorValue * alkali_slope + 7;
+  }
+  if (pH2_sensorValue > 0) {
+    pH = pH2_sensorValue * acid_slope + 7;
+  }
+  if (pH2_sensorValue == 0) {
+    pH = 7;
+  }
+  // output
+  Serial.print(pH2_sensorValue);
+  Serial.print("  ");
+  Serial.print(pH);
+  Serial.print("\n\n");
+
+
+  // acid pump activation
+  if (user_input < pH && difference >= 0.5) {
+    analogWrite(pumpA, 255);
+  } else {
+    analogWrite(pumpA, 0);
+  }
+
+  // akali pump activation
+  if (user_input > pH && difference >= 0.5) {
+    analogWrite(pumpB, 255);
+  } else {
+    analogWrite(pumpB, 0);
+  }
+  delay(30);
+}
