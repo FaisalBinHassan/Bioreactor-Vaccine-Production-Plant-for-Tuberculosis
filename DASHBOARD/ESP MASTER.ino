@@ -7,8 +7,8 @@
 
 
 // Wifi
-#define EAP_IDENTITY "zcabmaq@ucl.ac.uk"
-#define EAP_PASSWORD "Muyyaq.333802"
+#define EAP_IDENTITY "Your Email"
+#define EAP_PASSWORD "Your password"
 
 const char* ssid = "eduroam";
 WiFiClient espClient; //Initialize ThingsBoard client
@@ -20,13 +20,17 @@ ThingsBoard client(espClient);
 #define SLAVE_ADDR 9
 #define I2C_SDA 21
 #define I2C_SCL 22
-float temp = 0;
+float temp = 25;
+float ph = 3;
+float stir = 500;
 
-char str_send[5];
+// char str_send[5];
 
 // Thingsboard
-#define TOKEN "7aLsfYuYcCDlWFvp5BNk"
-#define THINGSBOARD_SERVER "thingsboard.cloud"
+// #define TOKEN "7aLsfYuYcCDlWFvp5BNk"
+#define TOKEN "QNj0Cb8tQOCRJi7ulMi5"
+#define THINGSBOARD_SERVER "engf0001.cs.ucl.ac.uk"
+// #define THINGSBOARD_SERVER "thingsboard.cloud"
 
 
 ThingsBoard tb(espClient);
@@ -38,9 +42,9 @@ static uint16_t messageCounter = 0;
 bool subscribed = false;
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
-float SetTemperature = 0;
-float SetPHv = 0;
-int SetStirring = 0;
+float SetTemperature = 25;
+float SetPHv = 5;
+int SetStirring = 500;
 RPC_Response getTemperature(const RPC_Data &data)
 {
   // Serial.println("Received the get Position Method");
@@ -136,15 +140,23 @@ void loop() {
 
 
   // Receive stuff
-  String received_string = "";
-  Wire.requestFrom(SLAVE_ADDR, 5);
+  char actual_value[17];
+  Wire.requestFrom(SLAVE_ADDR, 15);
 
+  // char identity_value = (char)Wire.read();
+  int i = 0;
   while (Wire.available()) {
-    char c = (char)Wire.read();
-    received_string += c;
+    char c = Wire.read();
+    // Serial.println(c);
+    actual_value[i] = c;
+    i++;
   }
+
+  // Serial.println(actual_value);
+
+
   // Serial.println(Wire.read());
-  Serial.println(received_string);
+  // Serial.println(actual_value);
 
   // send to thingsboard
 
@@ -160,6 +172,7 @@ void loop() {
       return;
     }
   }
+
 
   if (!subscribed) {
     Serial.println("Subscribing to RPC");
@@ -181,35 +194,67 @@ void loop() {
   // Serial.print(messageCounter);
   // Serial.print("]...");
   // Serial.println(r);
+  // Serial.println(SetTemperature);
+  // Serial.println(SetPHv);
+  // Serial.println(SetStirring);
   float tempGoal = SetTemperature;
+  float phGoal = SetPHv;
+  float stirGoal = SetStirring;
 
-  if (temp != tempGoal) {
+  if (temp != tempGoal || ph != phGoal  || stir != stirGoal) {
     temp = tempGoal;
+    ph = phGoal;
+    stir = stirGoal;
+    char str_send[17];
+    String t1 = String(temp, 2);
+    String ph1 = String(ph, 2);
+    String s1 = String(stir);
+    String fin = "T" + t1 + "P" + ph1 + "S" + s1;
+    for (int i = 0; i < 16; i++){
+      str_send[i] = fin[i];
+    }
     Wire.beginTransmission(SLAVE_ADDR);
-    char str_send[5];
-    dtostrf(temp, 5, 2, str_send);
     Wire.write(str_send);
     Wire.endTransmission();
   }
 
+  // decoding
+
+  String temp_value, ph_value, stir_value;
+
+  for (int i = 1; i < 6; i++){
+    temp_value += actual_value[i];
+  }
+  for (int i = 7; i < 11; i++){
+    ph_value += actual_value[i];
+  }
+  for (int i = 12; i < 16; i++){
+    stir_value += actual_value[i];
+  }
 
   //test
+  // Serial.println(temp_value);
+  // Serial.println(ph_value);
+  // Serial.println(stir_value);
+  Serial.println(SetTemperature);
+  Serial.println(SetPHv);
+  Serial.println(SetStirring);
 
-
-
-  tb.sendTelemetryFloat("Temperature", received_string.toFloat());
+  tb.sendTelemetryFloat("Temperature", temp_value.toFloat());
+  tb.sendTelemetryFloat("pH", ph_value.toFloat());
+  tb.sendTelemetryFloat("Stiring", stir_value.toInt());
   tb.sendTelemetryFloat("float", 1.269);
   tb.sendTelemetryInt("int", 1.269);
   tb.sendTelemetryFloat("randomVal", r);
 
   tb.loop();
 
-  delay(1000);
+  delay(500);
 }
 
-void requestEvent() {
-  float temp = SetTemperature;
-  Serial.println(temp);
-  dtostrf(temp, 5,2, str_send);
-  Wire.write(str_send);
-}
+// void requestEvent() {
+//   float temp = SetTemperature;
+//   Serial.println(temp);
+//   dtostrf(temp, 5,2, str_send);
+//   Wire.write(str_send);
+// }
