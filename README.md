@@ -7,3 +7,6 @@ For the team’s Engineering Challenge 2, the aim was to design a BCG vaccine pr
 
 ### Control Flow 
 <img width="834" alt="Screenshot 2022-12-27 at 1 00 54 AM" src="https://user-images.githubusercontent.com/83821827/209595416-7a4ff9f4-5064-432e-9200-ea084baa5ab1.png">
+
+### Dashboard
+<img width="725" alt="Screenshot 2022-12-27 at 1 04 38 AM" src="https://user-images.githubusercontent.com/83821827/209595515-5d2315c4-47aa-4adc-a806-9928d9093664.png">
