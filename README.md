@@ -6,4 +6,4 @@ The vaccine primarily used against the TB bacteria is the Bacillus Calmette-Gué
 For the team’s Engineering Challenge 2, the aim was to design a BCG vaccine production plant as part of the BCG vaccine manufacturing facilities in Mbarara, Uganda. As CS-EEE students, the task was to design, develop and test the circuitry, software and interfaces required to remotely monitor and control the parameters of a small-scale bioreactor control system.
 
 ### Control Flow 
-![Alt text](/Users/Faisal/Desktop/Screenshot\ 2022-12-27\ at\ 1.00.54\ AM.png)
+<img width="834" alt="Screenshot 2022-12-27 at 1 00 54 AM" src="https://user-images.githubusercontent.com/83821827/209595416-7a4ff9f4-5064-432e-9200-ea084baa5ab1.png">
